@@ -31,5 +31,7 @@ def build_experiment(
             f"Experiment {cfg.experiment._name} not found in registry {list(exp_registry.keys())}. "
             "Make sure you register it correctly in 'experiments/__init__.py' under the same name as yaml file."
         )
-
+    # in the case of VideoPredictionExperiment: 
+    # cfg.experiment._name = exp_video
+    # exp_registry[cfg.experiment._name] = VideoPredictionExperiment
     return exp_registry[cfg.experiment._name](cfg, logger, ckpt_path)
