@@ -9,9 +9,9 @@ defaults:
 debug: false # global debug flag will be passed into configuration of experiment, dataset and algorithm
 
 wandb:
-  entity: <your wandb account name> # wandb account name / organization name [fixme]
-  project: large_video_planner # wandb project name; if not provided, defaults to root folder name [fixme]
-  mode: offline # set wandb logging to online, offline or dryrun
+  entity: antzhan # wandb account name / organization name [fixme]
+  project: largevideoplanner-egomotion # wandb project name; if not provided, defaults to root folder name [fixme]
+  mode: online # set wandb logging to online, offline or dryrun
   log_model: false # whether log ckpt and upload to wandb. "all" is recommended but may take a lot of space
 
 resume: null # wandb run id to resume logging and loading checkpoint from

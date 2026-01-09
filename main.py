@@ -135,6 +135,10 @@ def run_slurm(cfg: DictConfig):
     config_name="config",
 )
 def run(cfg: DictConfig):
+    """
+    The @hydra.main decorator tells python "before running run(), look at the configurations/config.yaml file and use it to set the 'cfg' variable.
+    This 'cfg' variable is built using multiple yaml files! See the configurations/config.yaml for more details.
+    """
     if "_on_compute_node" in cfg and cfg.cluster.is_compute_node_offline:
         with open_dict(cfg):
             if cfg.cluster.is_compute_node_offline and cfg.wandb.mode == "online":
