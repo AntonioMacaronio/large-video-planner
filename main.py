@@ -72,6 +72,8 @@ def run_local(cfg: DictConfig):
     # for those who are searching, this is where we call tasks like 'training, validation, main'
     for task in cfg.experiment.tasks: # cfg.experiment.tasks = ['training'] for the standard script
         experiment.exec_task(task)
+        # task = 'training'
+        # experiment.exec_task(task) = VideoPredictionExperiment.training()
 
 
 def run_slurm(cfg: DictConfig):
