@@ -73,14 +73,14 @@ class BaseExperiment(ABC):
         Build the lightning module
         :return:  a pytorch-lightning module to be launched
         """
-        algo_name = self.root_cfg.algorithm._name
+        algo_name = self.root_cfg.algorithm._name # wan_i2v
         if algo_name not in self.compatible_algorithms:
             raise ValueError(
                 f"Algorithm {algo_name} not found in compatible_algorithms for this Experiment class. "
                 "Make sure you define compatible_algorithms correctly and make sure that each key has "
                 "same name as yaml file under '[project_root]/configurations/algorithm' without .yaml suffix"
             )
-        self.algo = self.compatible_algorithms[algo_name](self.root_cfg.algorithm)
+        self.algo = self.compatible_algorithms[algo_name](self.root_cfg.algorithm) # resolves to WanImageToVideo(self.root_cfg.algorithm)
         return self.algo
 
     def _build_strategy(self):
@@ -199,9 +199,10 @@ class BasePytorchExperiment(BaseExperiment):
         """
 
         if self.algo is None:
-            self._build_algo()
+            self._build_algo() # sets self.algo to WanImageToVideo(self.root_cfg.algorithm)
 
         optimizer = self.algo.configure_optimizers()
+        # optimizer is a dictionary with keys "optimizer" and "lr_scheduler"
 
         training_loader = self._build_training_loader()
         validation_loader = self._build_validation_loader()
