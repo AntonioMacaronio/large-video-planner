@@ -146,7 +146,27 @@ class WanTextToVideo(BasePytorchAlgo):
 
         # Initialize main diffusion model
         if self.cfg.model.tuned_ckpt_path is None:
-            self.model = WanModel.from_pretrained(self.cfg.model.ckpt_path)
+            if self.cfg.model.ckpt_path is not None:
+                self.model = WanModel.from_pretrained(self.cfg.model.ckpt_path)
+            else:
+                # No checkpoint - create model from config (for toy model testing)
+                self.model = WanModel(
+                    model_type=self.cfg.model.model_type,
+                    patch_size=self.cfg.model.patch_size,
+                    text_len=self.cfg.text_encoder.text_len,
+                    in_dim=self.cfg.model.in_dim,
+                    dim=self.cfg.model.dim,
+                    ffn_dim=self.cfg.model.ffn_dim,
+                    freq_dim=self.cfg.model.freq_dim,
+                    text_dim=self.cfg.text_encoder.text_dim,
+                    out_dim=self.cfg.model.out_dim,
+                    num_heads=self.cfg.model.num_heads,
+                    num_layers=self.cfg.model.num_layers,
+                    window_size=self.cfg.model.window_size,
+                    qk_norm=self.cfg.model.qk_norm,
+                    cross_attn_norm=self.cfg.model.cross_attn_norm,
+                    eps=self.cfg.model.eps,
+                )
         else:
             self.model = WanModel.from_config(
                 WanModel._dict_from_json_file(self.cfg.model.ckpt_path + "/config.json")
@@ -491,10 +511,13 @@ class WanTextToVideo(BasePytorchAlgo):
         batch_size = video_lat.shape[0]
 
         video_pred_lat = torch.randn_like(video_lat)
-        if self.lang_guidance:
+        if self.lang_guidance and self.text_encoder is not None:
             neg_prompt_embeds = self.encode_text(
                 [self.neg_prompt] * len(batch["prompts"])
             )
+        else:
+            neg_prompt_embeds = None
+            lang_guidance = 0
         if pbar is None:
             pbar = tqdm(range(len(self.inference_timesteps)), desc="Sampling")
         for t in self.inference_timesteps:

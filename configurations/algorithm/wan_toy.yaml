@@ -13,6 +13,7 @@ clip:
 
 model:
   ckpt_path: null
+  tuned_ckpt_path: null # Because wan_toy.yaml inherits from wan_i2v.yaml, we need to override the parent class's tuned_ckpt_path to null
   dim: 128
   ffn_dim: 128
   num_heads: 4
