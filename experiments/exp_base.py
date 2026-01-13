@@ -125,7 +125,7 @@ class BasePytorchExperiment(BaseExperiment):
 
     def _build_dataset(self, split: str) -> Optional[torch.utils.data.Dataset]:
         if split in ["training", "test", "validation"]:
-            return self.compatible_datasets[self.root_cfg.dataset._name](
+            return self.compatible_datasets[self.root_cfg.dataset._name]( # MixtureDataset(self.root_cfg.dataset, split=split)
                 self.root_cfg.dataset, split=split
             )
         else:
