@@ -14,6 +14,7 @@ from datasets.ego4d import Ego4DVideoDataset
 from datasets.agibot_world import AgibotWorldDataset
 from datasets.mixture import MixtureDataset
 from datasets.video_base import SingleFrameVideoDataset
+from datasets.nymeria import NymeriaVideoDataset
 from .exp_base import BaseLightningExperiment
 
 
@@ -43,6 +44,7 @@ class VideoPredictionExperiment(BaseLightningExperiment):
         agibot_world=AgibotWorldDataset,
         language_table=OpenXVideoDataset,
         ours_test=SingleFrameVideoDataset,
+        nymeria=NymeriaVideoDataset,
         # austin_buds=OpenXVideoDataset,
         # austin_sailor=OpenXVideoDataset,
         # austin_sirius=OpenXVideoDataset,
