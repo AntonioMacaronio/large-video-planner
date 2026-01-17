@@ -1,0 +1,37 @@
+defaults:
+  - video_base
+  - _self_
+
+# Nymeria egocentric human motion dataset
+# Videos are 1408x1408 square egocentric views with atomic action captions
+# Generate metadata with: python scripts/generate_nymeria_csv.py
+
+data_root: /data/nymeria
+metadata_path: metadata.csv
+load_prompt_embed: true  # Use precomputed T5 embeddings for efficiency
+pad_mode: slowdown  # Slow down shorter videos to match target frame count
+trim_mode: random_cut  # Random crop for longer videos (better than speedup for training)
+
+# Nymeria-specific settings
+fps_override: 30  # Override fps to 30 if videos have variable fps
+
+# Video dimensions - Nymeria videos are 1408x1408 but we resize for training
+# Using standard WAN training resolution
+height: 480
+width: 832
+n_frames: 49  # Standard WAN frame count
+fps: 16  # Target fps for training
+
+# Filtering settings for Nymeria data
+filtering:
+  disable: false
+  height: [100, 4096]  # Nymeria videos are 1408x1408
+  width: [100, 4096]
+  fps: [1, 120]
+  n_frames: [30, 500]  # Nymeria sequences vary, filter out very short/long
+
+# Augmentation - moderate augmentation for egocentric data
+augmentation:
+  random_flip: null  # Disable flip - egocentric views have handedness
+  ratio: [0.98, 1.02]  # Slight aspect ratio variation
+  scale: [0.85, 1.0]  # Random crop
