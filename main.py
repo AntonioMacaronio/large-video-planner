@@ -67,13 +67,16 @@ def run_local(cfg: DictConfig):
         checkpoint_path = Path("outputs/downloaded") / run_path / "model.ckpt"
 
     # launch experiment
-    experiment = build_experiment(cfg, output_dir, checkpoint_path)
+    experiment = build_experiment(cfg, output_dir, checkpoint_path) # from experiments/__init__.py, returms a VideoPredictionExperiment object
 
     # for those who are searching, this is where we call tasks like 'training, validation, main'
     for task in cfg.experiment.tasks: # cfg.experiment.tasks = ['training'] for the standard script
         experiment.exec_task(task)
         # task = 'training'
-        # experiment.exec_task(task) = VideoPredictionExperiment.training()
+        # .exec_task() is a method of the 'BaseExperiment' class which is inherited by VideoPredictionExperiment
+        # .exec_task() calls getattr(self, task)(), which is VideoPredictionExperiment.training()
+        # ---> experiment.exec_task(task) = VideoPredictionExperiment.training()
+        # VideoPredictionExperiment.training() is actually defined in experiments/exp_base.py, because training() is inherited.
 
 
 def run_slurm(cfg: DictConfig):
