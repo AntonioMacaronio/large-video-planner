@@ -75,10 +75,14 @@ class VideoPredictionExperiment(BaseLightningExperiment):
         if self.cfg.strategy == "ddp":
             return super()._build_strategy()
         elif self.cfg.strategy == "fsdp":
-            if self.cfg.num_nodes >= 8:
-                device_mesh = (self.cfg.num_nodes // 8, 32)
+            gpus_per_node = torch.cuda.device_count()
+            total_gpus = self.cfg.num_nodes * gpus_per_node
+            if total_gpus >= 32:
+                # Multi-node: shard across nodes, replicate within node
+                device_mesh = (self.cfg.num_nodes, gpus_per_node)
             else:
-                device_mesh = (1, self.cfg.num_nodes * 4)
+                # Single node or small cluster: full sharding across all GPUs
+                device_mesh = (1, total_gpus)
             return FSDPStrategy(
                 mixed_precision=MixedPrecision(
                     param_dtype=torch.bfloat16,
