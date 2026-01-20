@@ -42,21 +42,22 @@ class WanImageToVideo(WanTextToVideo):
         self.clip_normalize = clip_transform.transforms[-1]
 
     def configure_optimizers(self):
+        # When LoRA is enabled, only train LoRA parameters (requires_grad=True)
+        # Otherwise train all model parameters
+        if getattr(self.cfg, 'lora', None) and self.cfg.lora.enabled:
+            model_params = filter(lambda p: p.requires_grad, self.model.parameters())
+        else:
+            model_params = self.model.parameters()
+
         optimizer = torch.optim.AdamW(
             [
-                {"params": self.model.parameters(), "lr": self.cfg.lr},
+                {"params": model_params, "lr": self.cfg.lr},
                 {"params": self.vae.parameters(), "lr": 0},
                 {"params": self.clip.parameters(), "lr": 0},
             ],
             weight_decay=self.cfg.weight_decay,
             betas=self.cfg.betas,
         )
-        # optimizer = torch.optim.AdamW(
-        #     self.model.parameters(),
-        #     lr=self.cfg.lr,
-        #     weight_decay=self.cfg.weight_decay,
-        #     betas=self.cfg.betas,
-        # )
         lr_scheduler_config = {
             "scheduler": get_scheduler(
                 optimizer=optimizer,

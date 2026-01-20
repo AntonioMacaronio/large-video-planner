@@ -32,6 +32,14 @@ sliding_hist: 1 # use 2 latent frames as history when extending videos
 gradient_checkpointing_rate: 1.0  # gradient checkpointing blocks as a ratio of total blocks
 max_text_tokens: 512
 
+# LoRA configuration for memory-efficient finetuning
+lora:
+  enabled: false
+  r: 64  # LoRA rank
+  alpha: 64  # LoRA alpha (scaling factor)
+  dropout: 0.0
+  target_modules: ["q", "k", "v", "o", "ffn.0", "ffn.2"]  # attention + FFN layers
+
 logging:
   loss_freq: 1
   video_freq: 1000

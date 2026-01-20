@@ -13,6 +13,7 @@ import io
 from PIL import Image
 import torchvision.transforms as transforms
 from utils.video_utils import numpy_to_mp4_bytes
+from peft import LoraConfig, get_peft_model
 
 from .modules.model import WanModel, WanAttentionBlock
 from .modules.t5 import umt5_xxl, T5CrossAttention, T5SelfAttention
@@ -195,6 +196,20 @@ class WanTextToVideo(BasePytorchAlgo):
             # )
         if not self.is_inference:
             self.model.to(self.dtype).train()
+
+        # Apply LoRA if enabled
+        if getattr(self.cfg, 'lora', None) and self.cfg.lora.enabled:
+            logging.info(f"Applying LoRA with rank={self.cfg.lora.r}, alpha={self.cfg.lora.alpha}")
+            lora_config = LoraConfig(
+                r=self.cfg.lora.r,
+                lora_alpha=self.cfg.lora.alpha,
+                lora_dropout=self.cfg.lora.dropout,
+                target_modules=list(self.cfg.lora.target_modules),
+                bias="none",
+            )
+            self.model = get_peft_model(self.model, lora_config)
+            self.model.print_trainable_parameters()
+
         if self.gradient_checkpointing_rate > 0:
             self.model.gradient_checkpointing_enable(p=self.gradient_checkpointing_rate)
         if self.cfg.model.compile:
@@ -203,20 +218,21 @@ class WanTextToVideo(BasePytorchAlgo):
         self.training_scheduler, self.training_timesteps = self.build_scheduler(True)
 
     def configure_optimizers(self):
+        # When LoRA is enabled, only train LoRA parameters (requires_grad=True)
+        # Otherwise train all model parameters
+        if getattr(self.cfg, 'lora', None) and self.cfg.lora.enabled:
+            model_params = filter(lambda p: p.requires_grad, self.model.parameters())
+        else:
+            model_params = self.model.parameters()
+
         optimizer = torch.optim.AdamW(
             [
-                {"params": self.model.parameters(), "lr": self.cfg.lr},
+                {"params": model_params, "lr": self.cfg.lr},
                 {"params": self.vae.parameters(), "lr": 0},
             ],
             weight_decay=self.cfg.weight_decay,
             betas=self.cfg.betas,
         )
-        # optimizer = torch.optim.AdamW(
-        #     self.model.parameters(),
-        #     lr=self.cfg.lr,
-        #     weight_decay=self.cfg.weight_decay,
-        #     betas=self.cfg.betas,
-        # )
         lr_scheduler_config = {
             "scheduler": get_scheduler(
                 optimizer=optimizer,

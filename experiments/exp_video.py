@@ -93,6 +93,7 @@ class VideoPredictionExperiment(BaseLightningExperiment):
                 # sharding_strategy="FULL_SHARD",
                 sharding_strategy="HYBRID_SHARD",
                 device_mesh=device_mesh,
+                use_orig_params=True,  # Better handling of mixed requires_grad (e.g., LoRA)
             )
 
         else:
