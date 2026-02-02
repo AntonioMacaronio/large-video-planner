@@ -86,8 +86,10 @@ class BaseExperiment(ABC):
     def _build_strategy(self):
         from lightning.pytorch.strategies.ddp import DDPStrategy
 
+        # LoRA freezes most parameters, so we need find_unused_parameters=True
+        find_unused = getattr(self.root_cfg.algorithm, 'lora', {}).get('enabled', False)
         return (
-            DDPStrategy(find_unused_parameters=False)
+            DDPStrategy(find_unused_parameters=find_unused)
             if torch.cuda.device_count() > 1
             else "auto"
         )
