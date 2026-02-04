@@ -14,6 +14,7 @@ trim_mode: random_cut  # Random crop for longer videos (better than speedup for 
 
 # Nymeria-specific settings
 fps_override: 30  # Override fps to 30 if videos have variable fps
+load_actions: false  # Set to true to load motion data from HDF5 files (root/joint translations, orientations, etc.)
 
 # Video dimensions - Nymeria videos are 1408x1408 but we resize for training
 # Using standard WAN training resolution

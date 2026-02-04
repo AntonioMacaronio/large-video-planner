@@ -18,6 +18,11 @@ import decord  # isort:skip
 
 decord.bridge.set_bridge("torch")
 
+"""
+The NymeriaDataset inherits from VideoDataset, here's how VideoDataset works:
+    - __getitem__() will load a video with _load_video(record), where record is a dictionary containing a datapoint's video path / caption etc.
+    - _load_video() will read the file in record["video_path"] with decord.VideoReader(), and return a tensor of shape (n_frames, 3, H, W)
+"""
 
 class VideoDataset(Dataset):
     def __init__(self, cfg: DictConfig, split: str = "training") -> None:
@@ -239,6 +244,7 @@ class VideoDataset(Dataset):
     def _load_video(self, record: Dict[str, Any]) -> torch.Tensor:
         """
         Given a record, return a tensor of shape (n_frames, 3, H, W)
+        Note: a "record" is a dictionary containing a datapoint's video path / caption etc.
         """
 
         video_path = self.data_root / record["video_path"]
